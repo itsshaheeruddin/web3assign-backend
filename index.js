@@ -10,18 +10,15 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: "Hello from Vercel Serverless!" });
 });
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// MongoDB Connection
 const connectionURL = "mongodb+srv://shaheeruddin:Shaheer123@cluster0.uuj4z.mongodb.net"
 mongoose.connect(`${connectionURL}/cart-system`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
-// Product Schema
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
@@ -30,7 +27,6 @@ const productSchema = new mongoose.Schema({
 
 const Product = mongoose.model('Product', productSchema);
 
-// Cart Schema
 const cartSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   products: [{
@@ -41,7 +37,6 @@ const cartSchema = new mongoose.Schema({
 
 const Cart = mongoose.model('Cart', cartSchema);
 
-// Middleware to validate product existence
 const validateProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.body.productId);
@@ -56,7 +51,6 @@ const validateProduct = async (req, res, next) => {
 
 // API Routes
 
-// Get all products
 app.get('/products', async (req, res) => {
   try {
     const products = await Product.find();
@@ -66,7 +60,6 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// Add to cart
 app.post('/cart', validateProduct, async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
@@ -92,7 +85,6 @@ app.post('/cart', validateProduct, async (req, res) => {
   }
 });
 
-// Update cart item quantity
 app.put('/cart', validateProduct, async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
@@ -115,7 +107,6 @@ app.put('/cart', validateProduct, async (req, res) => {
   }
 });
 
-// Delete from cart
 app.delete('/cart', async (req, res) => {
   try {
     const { userId, productId } = req.body;
@@ -133,7 +124,6 @@ app.delete('/cart', async (req, res) => {
   }
 });
 
-// Get cart with total price
 app.get('/cart/:userId', async (req, res) => {
   try {
     const cart = await Cart.findOne({ userId: req.params.userId }).populate('products.productId');
@@ -153,7 +143,6 @@ app.get('/cart/:userId', async (req, res) => {
 
 const seedProducts = async () => {
   try {
-    // Check if products already exist
     const count = await Product.countDocuments();
     if (count === 0) {
       const sampleProducts = [
@@ -192,7 +181,6 @@ const seedProducts = async () => {
   }
 };
 
-// Call seedProducts when the server starts
 seedProducts();
 
 
